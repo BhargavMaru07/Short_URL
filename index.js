@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const cookiesParser = require("cookie-parser")
-const {restricToLoggedinUserOnly} = require("./middlewares/auth")
+const {checkForAuthentication, restrictTo } = require("./middlewares/auth");
 const { connectMongoDB } = require("./connection");
 const app = express();
 const { router } = require("./routes/router");
@@ -19,9 +19,10 @@ connectMongoDB("mongodb://127.0.0.1:27017/short-url");
 app.use(cookiesParser())
 app.use(express.json());
 app.use(express.urlencoded({extended:false}))
+app.use(checkForAuthentication)
 
 
-app.use("/url",restricToLoggedinUserOnly, router);
+app.use("/url",restrictTo(["NORMAL","ADMIN"]), router);
 app.use("/user",userRouter)
 app.use("/",staticRouter)
 
